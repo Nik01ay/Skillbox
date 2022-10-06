@@ -38,7 +38,7 @@ public class DBConnection {
                 "VALUES" + insertQuery.toString();
                 //"ON DUPLICATE KEY UPDATE `count`=`count` + 1";
         System.out.println(sql);
-        DBConnection.getConnection().createStatement().execute(sql);
+        synchronized (getConnection()) {DBConnection.getConnection().createStatement().execute(sql);}
 
 
     }
@@ -47,14 +47,16 @@ public class DBConnection {
         public static void addPage(String path, int code, String content) throws SQLException {
         //content = content.replace('.', '-');
 
-        insertQuery.append((insertQuery.length() == 0 ? "" : ",") +
-                "('" + path + "', " + code + ", '" + content + "')");
+        synchronized (insertQuery) {
+            insertQuery.append((insertQuery.length() == 0 ? "" : ",") +
+                    "('" + path + "', " + code + ", '" + content + "')");
 
-        if (insertQuery.length() > 1048576) {
-            executeMultiInsert();
-            insertQuery.setLength(0);
+            if (insertQuery.length() > 1048576) {
+                executeMultiInsert();
+                System.out.println(">1048576");
+                insertQuery.setLength(0);
+            }
         }
-
     }
 
 }

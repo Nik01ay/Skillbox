@@ -5,8 +5,9 @@ import java.util.concurrent.ForkJoinPool;
 
 
 public class Main {
-    static final String siteUrl = //"https://lenta.ru/";
-                                  "http://imkp.ru/";
+    static final String siteUrl = "http://www.playback.ru/";
+            //"https://lenta.ru/";
+                                  //"http://imkp.ru/";
                                    // "https://yandex.ru/";
                                     //"https://skillbox.ru/";
 
@@ -25,6 +26,11 @@ public class Main {
         Page page = new Page(siteUrl); //, 0, new ArrayList<>());
         System.out.println(1);
         String map = (String) new ForkJoinPool(coreCount).invoke(new PageTask(page));
+        try {
+            DBConnection.executeMultiInsert();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         System.out.println(2);
         System.out.println(coreCount);
         System.out.println(3);

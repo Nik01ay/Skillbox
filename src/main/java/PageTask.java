@@ -19,6 +19,7 @@ public class PageTask extends RecursiveTask {
         url = page.getUrl();
 
     }
+    // когда заканчиваются все потоки записать в бд
 
     @Override
     protected String compute() {
@@ -27,25 +28,32 @@ public class PageTask extends RecursiveTask {
         if (url.endsWith(".pdf")) {
             return page.toString();
         }
-
         final Document doc = page.readSite(url);
-        if ( doc == null)
-        {
+
+        try {
+
+            DBConnection.addPage(page.getTrimUrl(), page.getStatusCode(), page.getStatusCode() == 200 ? doc.text() : " ошибка соед ");
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        if (doc == null) {
             return "";
         }
-        Elements links = doc.select("a");
 
+        Elements links = doc.select("a");
 
         links.forEach(link -> {
 
             final String href = link.attr("abs:href");
-            if ( href.contains(url)) {
+            if (href.contains(url)) {
 
                 if (!page.contains(href)) {
                     Page child;
                     try {
                         child = new Page(href, page.getLevel() + 1, new ArrayList<>());
-                        DBConnection.addPage(href, 205, "page.getContent()");
+
                     } catch (Exception ignored) {
                         // тут просто добавляем битую ссылку, вызов которой приводит к ошибке.
                         child = new Page(href, page.getLevel() + 1);
@@ -60,11 +68,8 @@ public class PageTask extends RecursiveTask {
                         e.printStackTrace();
                     }
 
-
                     task.fork();
-
                     taskList.add(task);
-
 
                     //}
 
@@ -81,11 +86,6 @@ public class PageTask extends RecursiveTask {
             mapSite.append((String) task.join());
         }
 
-        try {
-            DBConnection.executeMultiInsert();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
 
         return mapSite.toString();
     }

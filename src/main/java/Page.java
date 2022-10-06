@@ -1,6 +1,6 @@
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -10,6 +10,7 @@ import java.util.List;
 public class Page {
     private String url;
     private int level;
+    private int statusCode;
     private List<Page> childrenPages;
     private static HashSet<String> visitLinks = new HashSet<>();
 
@@ -82,7 +83,10 @@ public class Page {
     public Document readSite(String url) {
 
         Document doc = null;
+
         try {
+            setStatusCode(url);
+            if (statusCode == 200)
             doc = Jsoup.connect(url)
                     .userAgent("Chrome/4.0.249.0 Safari/532.5")
                     .referrer("http://www.google.com")
@@ -95,5 +99,30 @@ public class Page {
 
         return doc;
     }
+
+    public void setStatusCode (String url) throws IOException {
+
+       Connection.Response response = Jsoup.connect(url)
+               .userAgent("Chrome/4.0.249.0 Safari/532.5")
+               .referrer("http://www.google.com")
+               .ignoreContentType(true)
+               .timeout(10000)
+               .execute();
+        statusCode = response.statusCode();
+
+    }
+
+    public int getStatusCode(){
+        return statusCode;
+    }
+
+    public String getTrimUrl(){
+        String tmpUrl = url.substring(url.indexOf("//")+2);
+        //System.out.println(tmpUrl.substring(tmpUrl.indexOf('/')) +" N " + url);
+        return tmpUrl.substring(tmpUrl.indexOf('/'));
+
+
+    }
+
 }
 
