@@ -13,10 +13,11 @@ public class Page {
     private int statusCode;
     private List<Page> childrenPages;
     private static HashSet<String> visitLinks = new HashSet<>();
-
+    private static int lethBaseUrl;
     public Page(String url, int level, List<Page> childrenPages) {
         this(url, level);
         this.childrenPages = childrenPages;
+
     }
 
     public Page(String url, int level) {
@@ -25,11 +26,17 @@ public class Page {
         this.level = level;
         childrenPages = null;
         visitLinks.add(url);
+
+        if (lethBaseUrl == 0)
+        {
+            lethBaseUrl = url.length();
+        }
     }
 
     public Page(String url) {
 
         this(url, 0, new ArrayList<>());
+
 
     }
 
@@ -117,9 +124,11 @@ public class Page {
     }
 
     public String getTrimUrl(){
-        String tmpUrl = url.substring(url.indexOf("//")+2);
+        //tring tmpUrl = url.substring(url.indexOf("//")+2);
         //System.out.println(tmpUrl.substring(tmpUrl.indexOf('/')) +" N " + url);
-        return tmpUrl.substring(tmpUrl.indexOf('/'));
+
+        //url.substring(lethBaseUrl);
+        return url.substring(lethBaseUrl-1);
 
 
     }

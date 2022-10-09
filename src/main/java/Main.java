@@ -1,4 +1,8 @@
 
+import org.apache.lucene.morphology.LuceneMorphology;
+import org.apache.lucene.morphology.russian.RussianLuceneMorphology;
+
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ForkJoinPool;
@@ -13,7 +17,7 @@ public class Main {
 
     static final int coreCount= Runtime.getRuntime().availableProcessors();
 
-    public static void main(String[] args) throws SQLException {
+    public static void main(String[] args) throws SQLException, IOException {
 /*
 
         DBConnection.addPage("www.fge1.ru", 201, "11fqewg gffdsag fdsg");
@@ -28,6 +32,7 @@ public class Main {
         String map = (String) new ForkJoinPool(coreCount).invoke(new PageTask(page));
         try {
             DBConnection.executeMultiInsert();
+            DBConnection.executeMultiInsertToLemms();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -36,6 +41,24 @@ public class Main {
         System.out.println(3);
         System.out.println(map);
         System.out.println(4);
+
+        LuceneMorphology luceneMorph =
+                new RussianLuceneMorphology();
+        List<String> wordBaseForms =
+                luceneMorph.getNormalForms("ночных");
+        wordBaseForms.forEach(System.out::println);
+
+         luceneMorph =
+                new RussianLuceneMorphology();
+        wordBaseForms =
+                luceneMorph.getMorphInfo("чай");
+        wordBaseForms.forEach(System.out::println);
+
+
+       //LemmaFinder.getInstance();
+
+        System.out.println( LemmaFinder.getInstance().collectLemmas("В общем, ночи, ночевать, вчера вечерело, после чего, и, или, ночь, ходить, настала ночь, к которой он не ходил босиком, вечером за ней"));
+       //LemmaFinder.collectLemmas("В общем, вчера вечерело, после чего настала ночь, к которой он не ходил босиком");
 
     }
 }

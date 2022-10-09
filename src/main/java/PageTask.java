@@ -32,7 +32,9 @@ public class PageTask extends RecursiveTask {
 
         try {
 
-            DBConnection.addPage(page.getTrimUrl(), page.getStatusCode(), page.getStatusCode() == 200 ? doc.text() : " ошибка соед ");
+            DBConnection.addPage(page.getTrimUrl(), page.getStatusCode(), page.getStatusCode() == 200 ? doc.html().replaceAll("'","\"") : " ошибка соед ");
+            // todo сделать блок добавления текста из тегов title и body
+            DBConnection.addLemms(doc.text());
         }
         catch (SQLException e) {
             e.printStackTrace();

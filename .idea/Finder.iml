@@ -25,5 +25,12 @@
     <orderEntry type="library" scope="RUNTIME" name="Maven: org.openjfx:javafx-graphics:win:19-ea+3" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: org.openjfx:javafx-base:19-ea+3" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: org.openjfx:javafx-base:win:19-ea+3" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.lucene.morphology:morph:1.5" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.lucene:lucene-core:8.11.0" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.lucene:lucene-analyzers-common:8.11.0" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.lucene.analysis:morphology:1.5" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.lucene.morphology:dictionary-reader:1.5" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.lucene.morphology:english:1.5" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.lucene.morphology:russian:1.5" level="project" />
   </component>
 </module>
