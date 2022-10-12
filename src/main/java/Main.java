@@ -33,6 +33,7 @@ public class Main {
         try {
             DBConnection.executeMultiInsert();
             DBConnection.executeMultiInsertToLemms();
+            DBConnection.executeMultiInsertToIndex();
         } catch (SQLException e) {
             e.printStackTrace();
         }

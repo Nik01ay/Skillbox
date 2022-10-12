@@ -14,6 +14,7 @@ public class DBConnection {
 
     private static StringBuilder insertQuery = new StringBuilder();
     private static StringBuilder insertLemms = new StringBuilder();
+    private static StringBuilder insertIndex = new StringBuilder();
 
     public static Connection getConnection() {
         if (connection == null) {
@@ -56,7 +57,11 @@ public class DBConnection {
                         "page_id INT NOT NULL, " +
                         "lemma_id INT NOT NULL, " +
                         "`rank` FLOAT NOT NULL, " +
-                        "PRIMARY KEY(id))");
+                        "PRIMARY KEY(id))" //, " +
+                        //"FOREIGN KEY (page_id) REFERENCES pages(id)," +
+                        //"FOREIGN KEY (lemma_id) REFERENCES lemma(id))"
+// TODO ДОБАВИТЬ СОСОТАВНОЙ КЛЮЧ, ЧТО БЫ НЕ ДОБАВЛЯТЬ ПОВТОРЯЮЩИЕСЯ ПАРЫ ЛЕММА И PAGE ID
+                );
 
 
             } catch (SQLException e) {
@@ -80,11 +85,21 @@ public class DBConnection {
         String sql = "INSERT INTO lemma(lemma, frequency) " +
                 "VALUES" + insertLemms.toString() +
                 "ON DUPLICATE KEY UPDATE `frequency`=`frequency` + 1";
+        //System.out.println(sql);
+        synchronized (getConnection()) {
+            DBConnection.getConnection().createStatement().execute(sql);
+        }
+    }
+
+    public static void executeMultiInsertToIndex() throws SQLException {
+        String sql = "INSERT INTO `Index`(page_id, lemma_id, `rank`) " +
+                "VALUES" + insertIndex.toString();
         System.out.println(sql);
         synchronized (getConnection()) {
             DBConnection.getConnection().createStatement().execute(sql);
         }
     }
+
 
     public static void addPage(String path, int code, String content) throws SQLException {
         //content = content.replace('.', '-');
@@ -93,15 +108,21 @@ public class DBConnection {
             insertQuery.append((insertQuery.length() == 0 ? "" : ",") +
                     "('" + path + "', " + code + ", '" + content + "')");
 
-            if (insertQuery.length() > 1048576) {
+            if (insertQuery.length() > 1048576 || insertIndex.length() > 1048576)
+
+            {
                 executeMultiInsert();
+                synchronized (insertLemms) {executeMultiInsertToLemms(); insertLemms.setLength(0);};
+                synchronized (insertIndex) {executeMultiInsertToIndex(); insertIndex.setLength(0);};
                 System.out.println(">1048576");
                 insertQuery.setLength(0);
+
+
             }
         }
     }
 
-    public static void addLemms(String content) {
+    public static void addLemms(String content, String path) {
 // todo дописать добавления в rank
         try {
             Set<String> lemmaSet = LemmaFinder.getInstance().getLemmaSet(content);
@@ -111,16 +132,19 @@ public class DBConnection {
                             "('" + s + "', " +
                             "1" + ")"
                     );
+
+
                 }
+                synchronized (insertIndex) {
+                    insertIndex.append((insertIndex.length() == 0 ? "" : ", ") +
+                            "((SELECT id FROM pages WHERE `path` ='" + path + "'), " +
+                            "(SELECT  id FROM lemma WHERE lemma ='" + s + "'), " +
+                            "32.212" + ")");
+                }
+
             });
-            if (insertLemms.length() > 1048576) {
-                executeMultiInsertToLemms();
-                System.out.println(">1048576 lems");
-                insertLemms.setLength(0);
-            }
+
         } catch (IOException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
             e.printStackTrace();
         }
 

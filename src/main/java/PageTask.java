@@ -34,7 +34,7 @@ public class PageTask extends RecursiveTask {
 
             DBConnection.addPage(page.getTrimUrl(), page.getStatusCode(), page.getStatusCode() == 200 ? doc.html().replaceAll("'","\"") : " ошибка соед ");
             // todo сделать блок добавления текста из тегов title и body
-            DBConnection.addLemms(doc.text());
+            DBConnection.addLemms(doc.text(), page.getTrimUrl());
         }
         catch (SQLException e) {
             e.printStackTrace();
